@@ -3,6 +3,7 @@ package com.amigoscode.filter;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -16,6 +17,27 @@ import java.io.IOException;
 //  - After calling chain.doFilter(), print the response status:
 //    HttpServletResponse res = (HttpServletResponse) response;
 //    System.out.println("Response status: " + res.getStatus());
-public class LoggingFilter {
+
+@Component
+public class LoggingFilter implements Filter {
+
+
+    @Override
+        public void doFilter(ServletRequest servletRequest,
+                             ServletResponse servletResponse,
+                             FilterChain chain) throws IOException, ServletException {
+
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        System.out.println(request.getMethod() + " " + request.getRequestURI());
+
+        chain.doFilter(servletRequest,servletResponse);
+
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+        System.out.println("Response status: " + response.getStatus());
+
+
+
+    }
+
 
 }
