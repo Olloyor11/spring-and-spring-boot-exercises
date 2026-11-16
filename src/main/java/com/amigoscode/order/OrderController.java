@@ -1,6 +1,10 @@
 package com.amigoscode.order;
 
 import com.amigoscode.order.dto.CreateOrderRequest;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +16,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
@@ -35,7 +40,7 @@ public class OrderController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Order>> getOrdersByStatus(
+    public ResponseEntity<List<Order>> getOrdersByStatus(@Valid
             @RequestParam(required = false) String status) {
         if (status != null) {
             return ResponseEntity.ok(orderService.getOrdersByStatus(status));
@@ -43,11 +48,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    // Exercise: 2 - Add @Valid annotation before the @RequestBody parameter
+    // TODO: 2 - Add @Valid annotation before the @RequestBody parameter
     //  to trigger bean validation on CreateOrderRequest
     //  Hint: import jakarta.validation.Valid
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest request) {
+    public ResponseEntity<Order> createOrder(@Valid @RequestBody  CreateOrderRequest request) {
         Order order = new Order();
         order.setDescription(request.getDescription());
         order.setStatus(request.getStatus());
@@ -76,11 +81,17 @@ public class OrderController {
         return ResponseEntity.notFound().build();
     }
 
-    // Exercise: 15 - Inject the property app.order.max-items using @Value
+    // TODO: 15 - Inject the property app.order.max-items using @Value
     //  Create a GET endpoint "/api/v1/orders/max-items" that returns the value
     //  Hint: @Value("${app.order.max-items}")
+    @Value("${app.order.max-items}")
+    private int maxItems;
 
-    // Exercise: 17 - Replace all System.out.println statements in this class with Logger
+    @GetMapping("/max-items" )
+    public int getMaxItems(){
+        return maxItems;
+    }
+    // TODO: 17 - Replace all System.out.println statements in this class with Logger
     //  private static final Logger log = LoggerFactory.getLogger(OrderController.class);
     //  Use log.info() for normal operations, log.warn() for not found, log.error() for failures
 

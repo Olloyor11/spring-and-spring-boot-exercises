@@ -1,5 +1,6 @@
 package com.amigoscode.order;
 
+import com.amigoscode.order.exception.OrderNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class OrderService {
     }
 
     public Optional<Order> getOrderById(Long id) {
-        return orderRepository.findById(id);
+        return Optional.of(orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(id)));
     }
 
     public List<Order> getOrdersByStatus(String status) {
@@ -31,11 +32,27 @@ public class OrderService {
     }
 
     public void updateOrder(Order order) {
-        orderRepository.update(order);
-    }
+        Order ord = orderRepository
+                .findById(order.getId())
+                .orElseThrow(() -> new OrderNotFoundException(order.getId()));
+
+            ord.setDescription(order.getDescription());
+            ord.setInternalNotes(order.getInternalNotes());
+            ord.setCustomerEmail(order.getCustomerEmail());
+            ord.setStatus(order.getStatus());
+            ord.setTotalAmount(order.getTotalAmount());
+            ord.setOrderDate(order.getOrderDate());
+
+            orderRepository.save(ord);
+        }
+
 
     public boolean deleteOrder(Long id) {
-        return orderRepository.deleteById(id);
+        if (!orderRepository.existsById(id)){
+            return false;
+        }
+        orderRepository.deleteById(id);
+        return true;
     }
 
 }
